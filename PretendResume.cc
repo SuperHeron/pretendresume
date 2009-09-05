@@ -23,12 +23,15 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <string>
 //#include <cctype>
 #include <cstdlib>
 #include <cstring>
 #include <sys/stat.h>
 
+#include <paludis/environment.hh>
 #include <paludis/hook.hh>
+#include <paludis/util/stringify.hh>
 #include <paludis/util/system.hh>
 //#include <paludis/util/wrapped_forward_iterator.hh>
 
@@ -47,10 +50,7 @@ paludis::HookResult paludis_hook_run(const paludis::Environment* env, const palu
 //		std::cout << h->first << " : " << h->second << std::endl;
 // Check whether $RESUME_COMMAND is defined
     if(hook.get("RESUME_COMMAND").empty())
-    {
         result.output = paludis::value_for<paludis::n::output>("No resume command");
-        return result;
-    }
     else
     {
         std::cout << std::endl;
@@ -66,7 +66,6 @@ paludis::HookResult paludis_hook_run(const paludis::Environment* env, const palu
             {
                 std::cout << "Resume command: " << hook.get("RESUME_COMMAND") << std::endl;
                 result.output = paludis::value_for<paludis::n::output>("Resume Command OK");
-                return result;
             }
 // Output resume command to file
             else
@@ -88,23 +87,29 @@ paludis::HookResult paludis_hook_run(const paludis::Environment* env, const palu
                     chmod(rctFile.c_str(), 0644);
                     std::cout << "Resume command saved to file: " << rctFile << std::endl;
                     result.output = paludis::value_for<paludis::n::output>("Resume Command Saved To File");
-                    return result;
                 }
                 else
                 {
                     std::cout << "Resume command NOT saved to file: " << rctFile << std::endl;
                     std::cout << "Resume command: " << hook.get("RESUME_COMMAND") << std::endl;
                     result.output = paludis::value_for<paludis::n::output>("Resume Command NOT Saved To File");
-                    return result;
                 }
             }
+            std::string root(paludis::stringify(env->root()));
+			std::string exec_mode(paludis::getenv_with_default("PALUDIS_EXEC_PALUDIS", ""));
+			if(exec_mode != "never" && (root.empty() || root == "/"))
+			{
+				std::string::size_type pos = hook.get("TARGETS").find("sys-apps/paludis");
+				if(pos != std::string::npos)
+					std::cout << "WARNING : Paludis is in resume command" << std::endl;
+			}
         }
 // Error
         else
         {
             std::cout << "Error in resume command" << std::endl;
             result.output = paludis::value_for<paludis::n::output>("Error in resume command");
-            return result;
         }
     }
+    return result;
 }
