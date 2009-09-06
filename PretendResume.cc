@@ -95,11 +95,11 @@ paludis::HookResult paludis_hook_run(const paludis::Environment* env, const palu
                     result.output = paludis::value_for<paludis::n::output>("Resume Command NOT Saved To File");
                 }
             }
-            std::string root(paludis::stringify(env->root()));
+			std::string root(paludis::stringify(env->root()));
 			std::string exec_mode(paludis::getenv_with_default("PALUDIS_EXEC_PALUDIS", ""));
 			if(exec_mode != "never" && (root.empty() || root == "/"))
 			{
-				std::string::size_type pos = hook.get("TARGETS").find("sys-apps/paludis");
+				std::string::size_type pos = hook.get("RESUME_COMMAND").find("sys-apps/paludis");
 				if(pos != std::string::npos)
 					std::cout << "WARNING : Paludis is in resume command" << std::endl;
 			}
