@@ -31,6 +31,7 @@
 
 #include <paludis/environment.hh>
 #include <paludis/hook.hh>
+#include <paludis/util/make_named_values.hh>
 #include <paludis/util/stringify.hh>
 #include <paludis/util/system.hh>
 //#include <paludis/util/wrapped_forward_iterator.hh>
@@ -40,7 +41,7 @@
  */
 paludis::HookResult paludis_hook_run(const paludis::Environment* env, const paludis::Hook& hook)
 {
-    paludis::HookResult result = { paludis::value_for<paludis::n::max_exit_status>(0), paludis::value_for<paludis::n::output>("") };
+    paludis::HookResult result = paludis::make_named_values<paludis::HookResult>(paludis::n::max_exit_status() = 0, paludis::n::output() = "");
     int fd = 0;
 /*
  * Showing all variables in hook
@@ -50,7 +51,7 @@ paludis::HookResult paludis_hook_run(const paludis::Environment* env, const palu
 //		std::cout << h->first << " : " << h->second << std::endl;
 // Check whether $RESUME_COMMAND is defined
     if(hook.get("RESUME_COMMAND").empty())
-        result.output = paludis::value_for<paludis::n::output>("No resume command");
+        result.output() = "No resume command";
     else
     {
         std::cout << std::endl;
@@ -65,7 +66,7 @@ paludis::HookResult paludis_hook_run(const paludis::Environment* env, const palu
             if(rctValue == "null")
             {
                 std::cout << "Resume command: " << hook.get("RESUME_COMMAND") << std::endl;
-                result.output = paludis::value_for<paludis::n::output>("Resume Command OK");
+                result.output() = "Resume Command OK";
             }
 // Output resume command to file
             else
@@ -86,13 +87,13 @@ paludis::HookResult paludis_hook_run(const paludis::Environment* env, const palu
                     rctFileStream.close();
                     chmod(rctFile.c_str(), 0644);
                     std::cout << "Resume command saved to file: " << rctFile << std::endl;
-                    result.output = paludis::value_for<paludis::n::output>("Resume Command Saved To File");
+                    result.output() = "Resume Command Saved To File";
                 }
                 else
                 {
                     std::cout << "Resume command NOT saved to file: " << rctFile << std::endl;
                     std::cout << "Resume command: " << hook.get("RESUME_COMMAND") << std::endl;
-                    result.output = paludis::value_for<paludis::n::output>("Resume Command NOT Saved To File");
+                    result.output() = "Resume Command NOT Saved To File";
                 }
             }
 			std::string root(paludis::stringify(env->root()));
@@ -108,7 +109,7 @@ paludis::HookResult paludis_hook_run(const paludis::Environment* env, const palu
         else
         {
             std::cout << "Error in resume command" << std::endl;
-            result.output = paludis::value_for<paludis::n::output>("Error in resume command");
+            result.output() = "Error in resume command";
         }
     }
     return result;
